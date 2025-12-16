@@ -1,9 +1,8 @@
 import postgres from "postgres";
 
-const getSQL = () => postgres(process.env.POSTGRES_URL!, { ssl: "require" });
+const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 
 async function listInvoices() {
-  const sql = getSQL();
   const data = await sql`
     SELECT invoices.amount, customers.name
     FROM invoices

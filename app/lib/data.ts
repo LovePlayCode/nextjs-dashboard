@@ -9,7 +9,7 @@ import {
 } from "./definitions";
 import { formatCurrency } from "./utils";
 
-const getSQL = () => postgres(process.env.POSTGRES_URL!, { ssl: "require" });
+const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 
 export async function fetchRevenue() {
   try {
@@ -19,7 +19,6 @@ export async function fetchRevenue() {
     console.log("Fetching revenue data...");
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
-    const sql = getSQL();
     const data = await sql<Revenue[]>`SELECT * FROM revenue`;
 
     console.log("Data fetch completed after 3 seconds.");
@@ -33,7 +32,6 @@ export async function fetchRevenue() {
 
 export async function fetchLatestInvoices() {
   try {
-    const sql = getSQL();
     const data = await sql<LatestInvoiceRaw[]>`
       SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
       FROM invoices
@@ -57,7 +55,6 @@ export async function fetchCardData() {
     // You can probably combine these into a single SQL query
     // However, we are intentionally splitting them to demonstrate
     // how to initialize multiple queries in parallel with JS.
-    const sql = getSQL();
     const invoiceCountPromise = sql`SELECT COUNT(*) FROM invoices`;
     const customerCountPromise = sql`SELECT COUNT(*) FROM customers`;
     const invoiceStatusPromise = sql`SELECT
@@ -96,7 +93,6 @@ export async function fetchFilteredInvoices(
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
-    const sql = getSQL();
     const invoices = await sql<InvoicesTable[]>`
       SELECT
         invoices.id,
@@ -127,7 +123,6 @@ export async function fetchFilteredInvoices(
 
 export async function fetchInvoicesPages(query: string) {
   try {
-    const sql = getSQL();
     const data = await sql`SELECT COUNT(*)
     FROM invoices
     JOIN customers ON invoices.customer_id = customers.id
@@ -149,7 +144,6 @@ export async function fetchInvoicesPages(query: string) {
 
 export async function fetchInvoiceById(id: string) {
   try {
-    const sql = getSQL();
     const data = await sql<InvoiceForm[]>`
       SELECT
         invoices.id,
@@ -175,7 +169,6 @@ export async function fetchInvoiceById(id: string) {
 
 export async function fetchCustomers() {
   try {
-    const sql = getSQL();
     const customers = await sql<CustomerField[]>`
       SELECT
         id,
@@ -193,7 +186,6 @@ export async function fetchCustomers() {
 
 export async function fetchFilteredCustomers(query: string) {
   try {
-    const sql = getSQL();
     const data = await sql<CustomersTableType[]>`
 		SELECT
 		  customers.id,
